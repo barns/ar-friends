@@ -1,10 +1,13 @@
 package uk.co.barnaby_taylor.ar;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -68,6 +71,7 @@ public class OverlayView extends View implements SensorEventListener,
     private Sensor gyroSensor;
 
     private TextPaint contentPaint;
+    private TextPaint messagePaint;
 
     private Paint targetPaint;
 
@@ -99,6 +103,11 @@ public class OverlayView extends View implements SensorEventListener,
         contentPaint.setTextAlign(Align.LEFT);
         contentPaint.setTextSize(20);
         contentPaint.setColor(Color.RED);
+
+        messagePaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
+        messagePaint.setTextAlign(Align.LEFT);
+        messagePaint.setTextSize(50);
+        messagePaint.setColor(Color.BLACK);
 
         // paint for target
 
@@ -135,9 +144,8 @@ public class OverlayView extends View implements SensorEventListener,
     protected void onDraw(Canvas canvas) {
         //Log.d(DEBUG_TAG, "onDraw");
         super.onDraw(canvas);
-
+        Resources res = getResources();
         // Draw something fixed (for now) over the camera view
-
 
         float curBearingToMW = 0.0f;
 
@@ -186,6 +194,7 @@ public class OverlayView extends View implements SensorEventListener,
 
                 // draw horizon line (a nice sanity check piece) and the target (if it's on the screen)
                 canvas.save();
+
                 // use roll for screen rotation
                 canvas.rotate((float)(0.0f- Math.toDegrees(orientation[2])));
 
@@ -202,11 +211,16 @@ public class OverlayView extends View implements SensorEventListener,
 
                 // now translate the dx
                 canvas.translate(0.0f-dx, 0.0f);
-
                 // draw our point -- we've rotated and translated this to the right spot already
-                canvas.drawCircle(canvas.getWidth()/2, canvas.getHeight()/2, 8.0f, targetPaint);
 
+                int boxMidX = canvas.getWidth()/2 - 300;
+                int boxMidY = canvas.getHeight()/2 - 300;
+                canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_message), boxMidX, boxMidY, null);
+                canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher3), boxMidX + 50, boxMidY + 50, null);
+                canvas.drawText("Liam Higgins", boxMidX + 170, boxMidY + 105, messagePaint);
+                canvas.drawCircle(canvas.getWidth()/2, canvas.getHeight()/2, 8.0f, targetPaint);
                 canvas.restore();
+
 
             }
         }
