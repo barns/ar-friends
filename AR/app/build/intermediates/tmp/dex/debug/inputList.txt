@@ -1,0 +1,5 @@
+/home/kajetan/AndroidStudioProjects/ar-friends/AR/app/build/intermediates/classes/debug
+/home/kajetan/AndroidStudioProjects/ar-friends/AR/app/build/intermediates/pre-dexed/debug/support-annotations-21.0.3-49cad3ff5cd7f696172faf14bcf6ea3fc98644f4.jar
+/home/kajetan/AndroidStudioProjects/ar-friends/AR/app/build/intermediates/pre-dexed/debug/internal_impl-21.0.3-8749143895ba8c9eabe9009b01e53c46cb2f4e0e.jar
+/home/kajetan/AndroidStudioProjects/ar-friends/AR/app/build/intermediates/pre-dexed/debug/classes-102754d532196766226ddb8c49d5d33cfd92f9d9.jar
+/home/kajetan/AndroidStudioProjects/ar-friends/AR/app/build/intermediates/pre-dexed/debug/classes-35e8e99e151ca793a5888213f6e84e7a8a67421b.jar

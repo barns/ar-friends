@@ -36,6 +36,13 @@ public class OverlayView extends View implements SensorEventListener {
     String accelData = "Accelerometer Data";
     String compassData = "Compass Data";
     String gyroData = "Gyro Data";
+    float[] accelArray;
+    float[] compassArray;
+    float[] gyroArray;
+
+    Filter filter = new Filter();
+
+    int smoothing = 100;
 
     private SensorManager sensors = null;
 
@@ -145,7 +152,7 @@ public class OverlayView extends View implements SensorEventListener {
         float identity[] = new float[9];
         if (lastAccelerometer != null && lastCompass != null) {
             boolean gotRotation = SensorManager.getRotationMatrix(rotation,
-                    identity, lastAccelerometer, lastCompass);
+                    identity, accelArray, compassArray);
             if (gotRotation) {
                 float cameraRotation[] = new float[9];
                 // remap such that the camera is pointing straight down the Y
@@ -216,13 +223,28 @@ public class OverlayView extends View implements SensorEventListener {
             case Sensor.TYPE_ACCELEROMETER:
                 lastAccelerometer = event.values.clone();
                 accelData = msg.toString();
+                if (accelArray != null) {
+                    accelArray = filter.lowPassArray(accelArray, event.values, smoothing, 10);
+                } else {
+                    accelArray = event.values;
+                }
                 break;
             case Sensor.TYPE_GYROSCOPE:
                 gyroData = msg.toString();
+                if (gyroArray != null) {
+                    gyroArray = filter.lowPassArray(gyroArray, event.values, smoothing, 10);
+                } else {
+                    gyroArray = event.values;
+                }
                 break;
             case Sensor.TYPE_MAGNETIC_FIELD:
                 lastCompass = event.values.clone();
                 compassData = msg.toString();
+                if (compassArray != null) {
+                    compassArray = filter.lowPassArray(compassArray, event.values, smoothing, 10);
+                } else {
+                    compassArray = event.values;
+                }
                 break;
         }
 
