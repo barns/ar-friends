@@ -53,11 +53,7 @@ public class OverlayView extends View implements SensorEventListener,
     private LocationManager locationManager = null;
     private SensorManager sensors = null;
 
-    private Filter filter = new Filter();
-
-    GPSTracker gps;
     private Location lastLocation;
-
     private float[] lastAccelerometer;
     private float[] lastCompass;
 
@@ -133,8 +129,6 @@ public class OverlayView extends View implements SensorEventListener,
         Log.v(DEBUG_TAG, "Best provider: " + best);
 
         locationManager.requestLocationUpdates(best, 50, 0, this);
-
-        gps = new GPSTracker(this.context);
     }
 
     @Override
@@ -151,27 +145,20 @@ public class OverlayView extends View implements SensorEventListener,
         text.append(compassData).append("\n");
         text.append(gyroData).append("\n");
 
-        if (gps == null) {
+        if (lastLocation != null) {
             text.append(
-                    String.format("GPS NOT INITIALISED\n"));
-        } else if (gps.canGetLocation()) {
-            //lastLocation = gps.getLocation();
-        //}
-        //if (lastLocation != null) {
-            text.append(
-                    String.format("GPS = (%.10f, %.10f) @ (%.5f meters up)",
-                            gps.getLatitude(),//lastLocation.getLatitude(),
-                            gps.getLongitude(),//lastLocation.getLongitude(),
-                            0.0));//lastLocation.getAltitude())).append("\n");
+                    String.format("GPS = (%.5f, %.5f) @ (%.5f meters up)",
+                            lastLocation.getLatitude(),
+                            lastLocation.getLongitude(),
+                            lastLocation.getAltitude())).append("\n");
 
             //curBearingToMW = lastLocation.bearingTo(mountWashington);
-            //curBearingToMW = lastLocation.bearingTo(teamDesk);
-            curBearingToMW = gps.getLocation().bearingTo(teamDesk);
+            curBearingToMW = lastLocation.bearingTo(teamDesk);
 
             text.append(String.format("Bearing to MW: %.3f", curBearingToMW))
                     .append("\n");
         } else text.append(
-                String.format("NO GPS SIGNAL\n"));
+                String.format("NO GPS SIGNAL"));
 
 
         // compute rotation matrix
@@ -265,9 +252,7 @@ public class OverlayView extends View implements SensorEventListener,
 
     public void onLocationChanged(Location location) {
         // store it off for use when we need it
-        Log.d(DEBUG_TAG, "Location changed");
         lastLocation = location;
-        Log.d(DEBUG_TAG, "onLocationChanged");
     }
 
     public void onProviderDisabled(String provider) {
