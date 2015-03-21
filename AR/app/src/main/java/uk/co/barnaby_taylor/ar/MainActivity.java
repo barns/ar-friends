@@ -18,6 +18,9 @@ public class MainActivity extends ActionBarActivity {
 
         ArDisplayView arDisplay = new ArDisplayView(this, this);
         arViewPane.addView(arDisplay);
+
+        OverlayView arContent = new OverlayView(getApplicationContext());
+        arViewPane.addView(arContent);
     }
 
 
