@@ -147,7 +147,7 @@ public class OverlayView extends View implements SensorEventListener,
 
         if (lastLocation != null) {
             text.append(
-                    String.format("GPS = (%.3f, %.3f) @ (%.2f meters up)",
+                    String.format("GPS = (%.5f, %.5f) @ (%.5f meters up)",
                             lastLocation.getLatitude(),
                             lastLocation.getLongitude(),
                             lastLocation.getAltitude())).append("\n");
@@ -157,7 +157,9 @@ public class OverlayView extends View implements SensorEventListener,
 
             text.append(String.format("Bearing to MW: %.3f", curBearingToMW))
                     .append("\n");
-        }
+        } else text.append(
+                String.format("NO GPS SIGNAL"));
+
 
         // compute rotation matrix
         float rotation[] = new float[9];
