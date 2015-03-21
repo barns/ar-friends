@@ -30,6 +30,9 @@ public class GPSTracker extends Service implements LocationListener {
     double latitude; // latitude
     double longitude; // longitude
 
+    Filter filter = new Filter();
+    int coordSmoothing = 100;
+
     // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
 
@@ -119,7 +122,7 @@ public class GPSTracker extends Service implements LocationListener {
      * */
     public double getLatitude(){
         if(location != null){
-            latitude = location.getLatitude();
+            latitude = filter.lowPass(latitude, location.getLatitude(), coordSmoothing, 2);
         }
 
         // return latitude
@@ -131,7 +134,7 @@ public class GPSTracker extends Service implements LocationListener {
      * */
     public double getLongitude(){
         if(location != null){
-            longitude = location.getLongitude();
+            longitude = filter.lowPass(longitude, location.getLongitude(), coordSmoothing, 2);
         }
 
         // return longitude
