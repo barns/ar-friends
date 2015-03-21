@@ -12,8 +12,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Layout.Alignment;
@@ -22,23 +20,12 @@ import android.text.TextPaint;
 import android.util.Log;
 import android.view.View;
 
-public class OverlayView extends View implements SensorEventListener,
-        LocationListener {
+public class OverlayView extends View implements SensorEventListener {
 
     public static final String DEBUG_TAG = "OverlayView Log";
 
     private final Context context;
     private Handler handler;
-
-    // Mount Washington, NH: 44.27179, -71.3039, 6288 ft (highest peak
-    private final static Location mountWashington = new Location("manual");
-    static {
-        mountWashington.setLatitude(44.27179d);
-        mountWashington.setLongitude(-71.3039d);
-        //mountWashington.setLatitude(43.998d);
-        //mountWashington.setLongitude(-71.2d);
-        mountWashington.setAltitude(1916.5d);
-    }
 
     private final static Location teamDesk = new Location("manual");
     static {
@@ -50,7 +37,6 @@ public class OverlayView extends View implements SensorEventListener,
     String compassData = "Compass Data";
     String gyroData = "Gyro Data";
 
-    private LocationManager locationManager = null;
     private SensorManager sensors = null;
 
     GPSTracker gps;
@@ -76,8 +62,6 @@ public class OverlayView extends View implements SensorEventListener,
         super(context);
         this.context = context;
         this.handler = new Handler();
-        locationManager = (LocationManager) context
-                .getSystemService(Context.LOCATION_SERVICE);
 
         sensors = (SensorManager) context
                 .getSystemService(Context.SENSOR_SERVICE);
@@ -119,17 +103,8 @@ public class OverlayView extends View implements SensorEventListener,
 
     private void startGPS() {
         Criteria criteria = new Criteria();
-        // criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        // while we want fine accuracy, it's unlikely to work indoors where we
-        // do our testing. :)
         criteria.setAccuracy(Criteria.NO_REQUIREMENT);
         criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
-
-        String best = locationManager.getBestProvider(criteria, true);
-
-        Log.v(DEBUG_TAG, "Best provider: " + best);
-
-        locationManager.requestLocationUpdates(best, 50, 0, this);
 
         gps = new GPSTracker(this.context);
     }
@@ -138,9 +113,6 @@ public class OverlayView extends View implements SensorEventListener,
     protected void onDraw(Canvas canvas) {
         //Log.d(DEBUG_TAG, "onDraw");
         super.onDraw(canvas);
-
-        // Draw something fixed (for now) over the camera view
-
 
         float curBearingToMW = 0.0f;
 
@@ -156,13 +128,10 @@ public class OverlayView extends View implements SensorEventListener,
         //}
         //if (lastLocation != null) {
             text.append(
-                    String.format("GPS = (%.10f, %.10f) @ (%.5f meters up)",
-                            gps.getLatitude(),//lastLocation.getLatitude(),
-                            gps.getLongitude(),//lastLocation.getLongitude(),
-                            0.0));//lastLocation.getAltitude())).append("\n");
+                    String.format("GPS = (%.7f, %.7f)",
+                            gps.getLatitude(),
+                            gps.getLongitude()));
 
-            //curBearingToMW = lastLocation.bearingTo(mountWashington);
-            //curBearingToMW = lastLocation.bearingTo(teamDesk);
             curBearingToMW = gps.getLocation().bearingTo(teamDesk);
 
             text.append(String.format("Bearing to MW: %.3f", curBearingToMW))
@@ -260,12 +229,6 @@ public class OverlayView extends View implements SensorEventListener,
         this.invalidate();
     }
 
-    public void onLocationChanged(Location location) {
-        // store it off for use when we need it
-        lastLocation = location;
-        Log.d(DEBUG_TAG, "onLocationChanged");
-    }
-
     public void onProviderDisabled(String provider) {
         // ...
     }
@@ -280,7 +243,6 @@ public class OverlayView extends View implements SensorEventListener,
 
     // this is not an override
     public void onPause() {
-        locationManager.removeUpdates(this);
         sensors.unregisterListener(this);
     }
 
