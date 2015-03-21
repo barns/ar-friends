@@ -53,7 +53,9 @@ public class OverlayView extends View implements SensorEventListener,
     private LocationManager locationManager = null;
     private SensorManager sensors = null;
 
-    private Location lastLocation;
+    private Filter filter = new Filter();
+
+    private Location lastLocation = teamDesk;
     private float[] lastAccelerometer;
     private float[] lastCompass;
 
@@ -252,6 +254,7 @@ public class OverlayView extends View implements SensorEventListener,
 
     public void onLocationChanged(Location location) {
         // store it off for use when we need it
+        Log.d(DEBUG_TAG, "Location changed");
         lastLocation = location;
     }
 
