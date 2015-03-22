@@ -10,8 +10,8 @@ public class AccelFilter
     ArrayList<ArrayList<Float>> values;
     int size;
 
-    public AccelFilter() {
-        size = 10;
+    public AccelFilter(int j) {
+        size = j;
         values = new ArrayList<>();
         for (int i=0; i<3; i++) {
             values.add(new ArrayList<Float>());

@@ -44,10 +44,11 @@ public class OverlayView extends View implements SensorEventListener,
     float[] accelArray;
     float[] compassArray;
 
-    AccelFilter accelFilter = new AccelFilter();
+    AccelFilter accelFilter = new AccelFilter(10);
     Filter compFilter = new Filter();
 
     int smoothing = 100;
+    int gate = 20;
 
     private SensorManager sensors = null;
 
@@ -192,7 +193,7 @@ public class OverlayView extends View implements SensorEventListener,
 
 
                 // make our line big enough to draw regardless of rotation and translation
-                canvas.drawLine(0f - canvas.getHeight(), canvas.getHeight()/2, canvas.getWidth()+canvas.getHeight(), canvas.getHeight()/2, targetPaint);
+                //canvas.drawLine(0f - canvas.getHeight(), canvas.getHeight()/2, canvas.getWidth()+canvas.getHeight(), canvas.getHeight()/2, targetPaint);
 
                 // now translate the dx
                 canvas.translate(0.0f-dx, 0.0f);
@@ -237,7 +238,7 @@ public class OverlayView extends View implements SensorEventListener,
                 lastAccelerometer = event.values.clone();
                 accelData = msg.toString();
                 if (accelArray != null) {
-                    accelArray = accelFilter.lowPassArray(accelArray, event.values, smoothing, 10);
+                    accelArray = accelFilter.lowPassArray(accelArray, event.values, smoothing, gate);
                 } else {
                     accelArray = event.values;
                 }
@@ -246,7 +247,7 @@ public class OverlayView extends View implements SensorEventListener,
                 lastCompass = event.values.clone();
                 compassData = msg.toString();
                 if (compassArray != null) {
-                    compassArray = compFilter.lowPassArray(compassArray, event.values, smoothing, 10);
+                    compassArray = compFilter.lowPassArray(compassArray, event.values, smoothing,gate);
                 } else {
                     compassArray = event.values;
                 }
