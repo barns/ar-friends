@@ -41,10 +41,8 @@ public class OverlayView extends View implements SensorEventListener,
 
     String accelData = "Accelerometer Data";
     String compassData = "Compass Data";
-    String gyroData = "Gyro Data";
     float[] accelArray;
     float[] compassArray;
-    float[] gyroArray;
 
     Filter filter = new Filter();
 
@@ -62,10 +60,8 @@ public class OverlayView extends View implements SensorEventListener,
 
     private boolean isAccelAvailable;
     private boolean isCompassAvailable;
-    private boolean isGyroAvailable;
     private Sensor accelSensor;
     private Sensor compassSensor;
-    private Sensor gyroSensor;
 
     private TextPaint contentPaint;
     private TextPaint messagePaint;
@@ -81,7 +77,6 @@ public class OverlayView extends View implements SensorEventListener,
                 .getSystemService(Context.SENSOR_SERVICE);
         accelSensor = sensors.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         compassSensor = sensors.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        gyroSensor = sensors.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
         startSensors();
         startGPS();
@@ -116,8 +111,6 @@ public class OverlayView extends View implements SensorEventListener,
                 SensorManager.SENSOR_DELAY_NORMAL);
         isCompassAvailable = sensors.registerListener(this, compassSensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
-        isGyroAvailable = sensors.registerListener(this, gyroSensor,
-                SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     private void startGPS() {
@@ -139,7 +132,6 @@ public class OverlayView extends View implements SensorEventListener,
 
         StringBuilder text = new StringBuilder(accelData).append("\n");
         text.append(compassData).append("\n");
-        text.append(gyroData).append("\n");
 
         if (gps == null) {
             text.append(
@@ -247,14 +239,6 @@ public class OverlayView extends View implements SensorEventListener,
                     accelArray = filter.lowPassArray(accelArray, event.values, smoothing, 10);
                 } else {
                     accelArray = event.values;
-                }
-                break;
-            case Sensor.TYPE_GYROSCOPE:
-                gyroData = msg.toString();
-                if (gyroArray != null) {
-                    gyroArray = filter.lowPassArray(gyroArray, event.values, smoothing, 10);
-                } else {
-                    gyroArray = event.values;
                 }
                 break;
             case Sensor.TYPE_MAGNETIC_FIELD:
