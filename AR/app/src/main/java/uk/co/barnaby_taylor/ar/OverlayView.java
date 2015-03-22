@@ -81,6 +81,8 @@ public class OverlayView extends View implements SensorEventListener,
 
     //TODO create instance of person for each retrieved from server.
 
+    private ArBox[] arBoxes;
+
     private Person[] persons = new Person[numberOfPeople];
 
     public OverlayView(Context context) {
@@ -124,6 +126,10 @@ public class OverlayView extends View implements SensorEventListener,
         messagePaint.setTextAlign(Align.LEFT);
         messagePaint.setTextSize(50);
         messagePaint.setColor(Color.BLACK);
+
+        arBoxes = new ArBox[2];
+        arBoxes[0] = new ArBox(context, "1", "Bob", messagePaint);
+        arBoxes[2] = new ArBox(context, "2", "Joe", messagePaint);
 
         // paint for target
 
@@ -175,6 +181,35 @@ public class OverlayView extends View implements SensorEventListener,
         } else text.append(
                 String.format("NO GPS SIGNAL\n"));
 
+        for (ArBox arBox : arBoxes) {
+            float rotation[] = new float[9];
+            float identity[] = new float[9];
+            float cameraRotation[] = new float[9];
+            SensorManager.remapCoordinateSystem(rotation, SensorManager.AXIS_X,
+                    SensorManager.AXIS_Z, cameraRotation);
+
+            float orientation[] = new float[3];
+            SensorManager.getOrientation(cameraRotation, orientation);
+
+            canvas.save();
+
+            // use roll for screen rotation
+            canvas.rotate((float) (0.0f - Math.toDegrees(orientation[2])));
+
+            // Translate, but normalize for the FOV of the camera -- basically, pixels per degree, times degrees == pixels
+            float dx = (float) ((canvas.getWidth() / horizontalFOV) * Math.toDegrees(orientation[0]));
+            float dy = (float) ((canvas.getHeight() / verticalFOV) * Math.toDegrees(orientation[1]));
+
+            // wait to translate the dx so the horizon doesn't get pushed off
+            canvas.translate(0.0f, 0.0f - dy);
+
+            // now translate the dx
+            canvas.translate(0.0f - dx, 0.0f);
+
+            arBox.draw(canvas);
+
+            canvas.restore();
+        }
 
         for (Person person : persons) {
             // compute rotation matrix
@@ -215,8 +250,8 @@ public class OverlayView extends View implements SensorEventListener,
                     // now translate the dx
                     canvas.translate(0.0f - dx, 0.0f);
 
-                    int boxMidX = canvas.getWidth() / 2 - 300;
-                    int boxMidY = canvas.getHeight() / 2 - 150;
+                    int boxMidX = canvas.getWidth() / 2 - 150;
+                    int boxMidY = canvas.getHeight() / 2 - 75;
                     canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_message), boxMidX, boxMidY, null);
                     canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher3), boxMidX + 50, boxMidY + 50, null);
                     canvas.drawText(person.getName(), boxMidX + 170, boxMidY + 105, messagePaint);
@@ -272,6 +307,13 @@ public class OverlayView extends View implements SensorEventListener,
                 Log.w(DEBUG_TAG, "Hit!");
             }*/
         }
+
+        for (ArBox arBox : arBoxes) {
+            if (arBox.getBounds().contains((int) xCoord, (int) yCoord)) {
+                arBox.setName(xCoord + "," + yCoord);
+            }
+        }
+
         return true;
     }
 
