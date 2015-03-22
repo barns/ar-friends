@@ -33,16 +33,6 @@ public class OverlayView extends View implements SensorEventListener,
     private final Context context;
     private Handler handler;
 
-    // Mount Washington, NH: 44.27179, -71.3039, 6288 ft (highest peak
-    private final static Location mountWashington = new Location("manual");
-    static {
-        mountWashington.setLatitude(44.27179d);
-        mountWashington.setLongitude(-71.3039d);
-        //mountWashington.setLatitude(43.998d);
-        //mountWashington.setLongitude(-71.2d);
-        mountWashington.setAltitude(1916.5d);
-    }
-
     private final static Location teamDesk = new Location("manual");
     static {
         teamDesk.setLatitude(51.31345);
@@ -60,7 +50,6 @@ public class OverlayView extends View implements SensorEventListener,
 
     int smoothing = 100;
 
-    private LocationManager locationManager = null;
     private SensorManager sensors = null;
 
     GPSTracker gps;
@@ -87,8 +76,6 @@ public class OverlayView extends View implements SensorEventListener,
         super(context);
         this.context = context;
         this.handler = new Handler();
-        locationManager = (LocationManager) context
-                .getSystemService(Context.LOCATION_SERVICE);
 
         sensors = (SensorManager) context
                 .getSystemService(Context.SENSOR_SERVICE);
@@ -135,17 +122,8 @@ public class OverlayView extends View implements SensorEventListener,
 
     private void startGPS() {
         Criteria criteria = new Criteria();
-        // criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        // while we want fine accuracy, it's unlikely to work indoors where we
-        // do our testing. :)
         criteria.setAccuracy(Criteria.NO_REQUIREMENT);
         criteria.setPowerRequirement(Criteria.NO_REQUIREMENT);
-
-        String best = locationManager.getBestProvider(criteria, true);
-
-        Log.v(DEBUG_TAG, "Best provider: " + best);
-
-        locationManager.requestLocationUpdates(best, 50, 0, this);
 
         gps = new GPSTracker(this.context);
     }
@@ -170,10 +148,9 @@ public class OverlayView extends View implements SensorEventListener,
             //lastLocation = gps.getLocation();
             //}
             //if (lastLocation != null) {
-            String.format("GPS = (%.10f, %.10f) @ (%.5f meters up)",
-                    gps.getLatitude(),//lastLocation.getLatitude(),
-                    gps.getLongitude(),//lastLocation.getLongitude(),
-                    0.0);//lastLocation.getAltitude())).append("\n");
+            String.format("GPS = (%.10f, %.10f)",
+                    gps.getLatitude(),
+                    gps.getLongitude());
 
             //curBearingToMW = lastLocation.bearingTo(teamDesk);
             curBearingToMW = gps.getLocation().bearingTo(teamDesk);
@@ -314,7 +291,6 @@ public class OverlayView extends View implements SensorEventListener,
 
     // this is not an override
     public void onPause() {
-        locationManager.removeUpdates(this);
         sensors.unregisterListener(this);
     }
 
