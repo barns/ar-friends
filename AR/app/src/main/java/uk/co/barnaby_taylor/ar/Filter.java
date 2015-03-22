@@ -1,10 +1,23 @@
 package uk.co.barnaby_taylor.ar;
 
+import java.util.ArrayList;
+
 /**
  * Created by barnabytaylor on 21/03/15.
  */
 public class Filter
 {
+    ArrayList<ArrayList<Float>> values;
+    int size;
+
+    public Filter() {
+        size = 8;
+        values = new ArrayList<>();
+        for (int i=0; i<3; i++) {
+            values.add(new ArrayList<Float>());
+        }
+    }
+
     public double lowPass(double currentValue, double newValue, int smoothing, int gate)
     {
         double candidate = (currentValue - newValue) / smoothing;
@@ -18,16 +31,26 @@ public class Filter
 
     public float[] lowPassArray(float[] currentValues, float[] newValues, int smoothing, int gate)
     {
+        float[] output = new float[newValues.length];
         for (int i = 0; i < currentValues.length; i++)
         {
-            double candidate = (currentValues[i] - newValues[i]) / smoothing;
-            if (Math.abs(candidate - newValues[i]) > newValues[i] / gate) {
-                newValues[i] += (currentValues[i] - newValues[i]) / smoothing;
-            } else {
-                newValues[i] = currentValues[i];
-            }
+            output[i] = filter(newValues[i],values.get(i),smoothing);
         }
 
-        return newValues;
+        return output;
+    }
+
+    private float filter(float f, ArrayList<Float> values,int smoothing) {
+        if (values.size() >= size) {
+            values.remove(0);
+        }
+        values.add(f);
+
+        float sum = 0;
+        for (float number : values) {
+            sum += number;
+        }
+
+        return sum/values.size();
     }
 }

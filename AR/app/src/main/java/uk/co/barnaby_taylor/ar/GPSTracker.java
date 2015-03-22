@@ -26,7 +26,8 @@ public class GPSTracker extends Service implements LocationListener {
     double latitude;
     double longitude;
 
-    Filter filter = new Filter();
+    Filter latitudeFilter = new Filter();
+    Filter longitudeFilter = new Filter();
     int coordSmoothing = 100;
 
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1; //meters
@@ -108,7 +109,7 @@ public class GPSTracker extends Service implements LocationListener {
 
     public double getLatitude(){
         if(location != null){
-            latitude = filter.lowPass(latitude, location.getLatitude(), coordSmoothing, 2);
+            latitude = latitudeFilter.lowPass(latitude, location.getLatitude(), coordSmoothing, 2);
         }
 
         // return latitude
@@ -117,7 +118,7 @@ public class GPSTracker extends Service implements LocationListener {
 
     public double getLongitude(){
         if(location != null){
-            longitude = filter.lowPass(longitude, location.getLongitude(), coordSmoothing, 2);
+            longitude = longitudeFilter.lowPass(longitude, location.getLongitude(), coordSmoothing, 2);
         }
 
         // return longitude

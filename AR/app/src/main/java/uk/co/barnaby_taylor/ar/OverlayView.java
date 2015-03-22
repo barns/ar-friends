@@ -44,7 +44,8 @@ public class OverlayView extends View implements SensorEventListener,
     float[] accelArray;
     float[] compassArray;
 
-    Filter filter = new Filter();
+    Filter accelFilter = new Filter();
+    Filter compFilter = new Filter();
 
     int smoothing = 100;
 
@@ -108,9 +109,9 @@ public class OverlayView extends View implements SensorEventListener,
 
     private void startSensors() {
         isAccelAvailable = sensors.registerListener(this, accelSensor,
-                SensorManager.SENSOR_DELAY_NORMAL);
+                SensorManager.SENSOR_DELAY_FASTEST);
         isCompassAvailable = sensors.registerListener(this, compassSensor,
-                SensorManager.SENSOR_DELAY_NORMAL);
+                SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     private void startGPS() {
@@ -236,7 +237,7 @@ public class OverlayView extends View implements SensorEventListener,
                 lastAccelerometer = event.values.clone();
                 accelData = msg.toString();
                 if (accelArray != null) {
-                    accelArray = filter.lowPassArray(accelArray, event.values, smoothing, 10);
+                    accelArray = accelFilter.lowPassArray(accelArray, event.values, smoothing, 10);
                 } else {
                     accelArray = event.values;
                 }
@@ -245,7 +246,7 @@ public class OverlayView extends View implements SensorEventListener,
                 lastCompass = event.values.clone();
                 compassData = msg.toString();
                 if (compassArray != null) {
-                    compassArray = filter.lowPassArray(compassArray, event.values, smoothing, 10);
+                    compassArray = compFilter.lowPassArray(compassArray, event.values, smoothing, 10);
                 } else {
                     compassArray = event.values;
                 }
