@@ -2,6 +2,7 @@ package uk.co.barnaby_taylor.ar;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -23,6 +24,7 @@ import android.text.Layout.Alignment;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.HashMap;
@@ -75,6 +77,7 @@ public class OverlayView extends View implements SensorEventListener,
     //TODO create instance of person for each retrieved from server.
 
     private Person[] persons = new Person[numberOfPeople];
+    private Bitmap[] boxes = new Bitmap[numberOfPeople];
 
     public OverlayView(Context context) {
         super(context);
@@ -198,18 +201,18 @@ public class OverlayView extends View implements SensorEventListener,
                     canvas.rotate((float) (0.0f - Math.toDegrees(orientation[2])));
 
                     // Translate, but normalize for the FOV of the camera -- basically, pixels per degree, times degrees == pixels
-                    float dx = (float) ((canvas.getWidth() / horizontalFOV) * (Math.toDegrees(orientation[0]) - person.getBearingTo(gps)));
-                    float dy = (float) ((canvas.getHeight() / verticalFOV) * Math.toDegrees(orientation[1]));
+                    person.setDx((float) ((canvas.getWidth() / horizontalFOV) * (Math.toDegrees(orientation[0]) - person.getBearingTo(gps))));
+                    person.setDy((float) ((canvas.getHeight() / verticalFOV) * Math.toDegrees(orientation[1])));
 
                     // wait to translate the dx so the horizon doesn't get pushed off
-                    canvas.translate(0.0f, 0.0f - dy);
+                    canvas.translate(0.0f, 0.0f - person.getDy());
 
 
                     // make our line big enough to draw regardless of rotation and translation
                     canvas.drawLine(0f - canvas.getHeight(), canvas.getHeight() / 2, canvas.getWidth() + canvas.getHeight(), canvas.getHeight() / 2, targetPaint);
 
                     // now translate the dx
-                    canvas.translate(0.0f - dx, 0.0f);
+                    canvas.translate(0.0f - person.getDx(), 0.0f);
                     // draw our point -- we've rotated and translated this to the right spot already
 
                     int boxMidX = canvas.getWidth() / 2 - 300;
@@ -259,6 +262,19 @@ public class OverlayView extends View implements SensorEventListener,
         }
 
         this.invalidate();
+    }
+
+    public boolean onTouchEvent(MotionEvent event) {
+        float xCoord = event.getX();
+        float yCoord = event.getY();
+
+        for (int i = 0; i < persons.length; i++) {
+            Log.w(DEBUG_TAG, "touch x: " + xCoord + " touch y: " + yCoord + " x-bound 1: " + persons[i].getDx() + " x-bound 2: " + (300 + persons[i].getDx()) + " y-bound 1: " + persons[i].getDy() + " y-bound 2: " + persons[i].getDy());
+            if (xCoord >= 150 - persons[i].getDx() && xCoord <= persons[i].getDx() + 150 && 75 - yCoord >= persons[i].getDy() && yCoord <= persons[i].getDy() + 75) {
+                Log.d(DEBUG_TAG, "Hit!");
+            }
+        }
+        return true;
     }
 
     public void onLocationChanged(Location location) {
