@@ -44,7 +44,7 @@ public class OverlayView extends View implements SensorEventListener,
     float[] accelArray;
     float[] compassArray;
 
-    Filter accelFilter = new Filter();
+    AccelFilter accelFilter = new AccelFilter();
     Filter compFilter = new Filter();
 
     int smoothing = 100;

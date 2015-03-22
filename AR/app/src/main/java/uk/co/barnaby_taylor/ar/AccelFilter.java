@@ -5,13 +5,13 @@ import java.util.ArrayList;
 /**
  * Created by barnabytaylor on 21/03/15.
  */
-public class Filter
+public class AccelFilter
 {
     ArrayList<ArrayList<Float>> values;
     int size;
 
-    public Filter() {
-        size = 6;
+    public AccelFilter() {
+        size = 10;
         values = new ArrayList<>();
         for (int i=0; i<3; i++) {
             values.add(new ArrayList<Float>());
@@ -41,11 +41,6 @@ public class Filter
     }
 
     private float filter(float f, ArrayList<Float> values,int smoothing,float current) {
-
-        if (f/current > 1.1 || f/current<0.9) {
-            return f;
-        }
-
         if (values.size() >= size) {
             values.remove(0);
         }
@@ -53,9 +48,10 @@ public class Filter
 
         float sum = 0;
         for (float number : values) {
-            sum += 1/number;
+            sum += number;
         }
 
-        return values.size()/sum;
+        return (sum/values.size()+5*current)/6;
     }
 }
+
