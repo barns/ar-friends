@@ -1,22 +1,47 @@
 package uk.co.barnaby_taylor.ar;
 
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.widget.LoginButton;
+
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends FragmentActivity {
 
+    private MainFragment mainFragment;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState == null) {
+            // Add the fragment on initial activity setup
+            mainFragment = new MainFragment();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(android.R.id.content, mainFragment)
+                    .commit();
+        } else {
+            // Or set the fragment from restored state info
+            mainFragment = (MainFragment) getSupportFragmentManager()
+                    .findFragmentById(android.R.id.content);
+        }
+//        mainFragment.onDestroy();
+        getSupportFragmentManager().beginTransaction().remove(mainFragment);
         setContentView(R.layout.activity_main);
 
         FrameLayout arViewPane = (FrameLayout) findViewById(R.id.ar_view_pane);
 
         ArDisplayView arDisplay = new ArDisplayView(this, this);
+
+//        arViewPane.addView(connect);
         arViewPane.addView(arDisplay);
 
         OverlayView arContent = new OverlayView(getApplicationContext());
@@ -44,5 +69,9 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onDestroy() {
+        super.onDestroy();
     }
 }
