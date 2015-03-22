@@ -92,7 +92,6 @@ public class Person
     }
 
     public float getBearingTo(GPSTracker gps) {
-        bearingTo = gps.getLocation().bearingTo(location);
-        return bearingTo;
+        return gps.getLocation().bearingTo(this.location);
     }
 }

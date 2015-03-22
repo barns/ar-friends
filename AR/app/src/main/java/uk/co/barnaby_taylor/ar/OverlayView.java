@@ -38,25 +38,25 @@ public class OverlayView extends View implements SensorEventListener,
     private Handler handler;
     private Location lastLocation;
 
-    private final static Location teamDesk = new Location("manual");
+    private final static Location russia = new Location("manual");
     static {
-        teamDesk.setLatitude(51.31345);
-        teamDesk.setLongitude(0.08219);
+        russia.setLatitude(69.522991);
+        russia.setLongitude(94.152833);
     }
 
-    private final static Location somewhere = new Location("manual");
+    private final static Location canada = new Location("manual");
     static {
-        teamDesk.setLatitude(51.31347);
-        teamDesk.setLongitude(0.08218);
+        canada.setLatitude(48.064872);
+        canada.setLongitude(-76.485341);
     }
 
     AccelFilter accelFilter = new AccelFilter(10);
     Filter compFilter = new Filter();
 
-    private final static Location somewhereElse = new Location("manual");
+    private final static Location ghana = new Location("manual");
     static {
-        teamDesk.setLatitude(51.31344);
-        teamDesk.setLongitude(0.08216);
+        ghana.setLatitude(9.386210);
+        ghana.setLongitude(1.426747);
     }
 
     private SensorManager sensors = null;
@@ -82,7 +82,6 @@ public class OverlayView extends View implements SensorEventListener,
     //TODO create instance of person for each retrieved from server.
 
     private Person[] persons = new Person[numberOfPeople];
-    private Bitmap[] boxes = new Bitmap[numberOfPeople];
 
     public OverlayView(Context context) {
         super(context);
@@ -90,11 +89,11 @@ public class OverlayView extends View implements SensorEventListener,
         this.handler = new Handler();
 
         persons[0] = new Person("Barnaby");
-        persons[0].setLocation(teamDesk);
+        persons[0].setLocation(russia);
         persons[1] = new Person("Liam");
-        persons[1].setLocation(somewhere);
+        persons[1].setLocation(canada);
         persons[2] = new Person("Daniel");
-        persons[2].setLocation(somewhereElse);
+        persons[2].setLocation(ghana);
 
         /*for (int i = 0; i < numberOfPeople; i++) {
             persons[i] = new Person(personName);
@@ -201,7 +200,6 @@ public class OverlayView extends View implements SensorEventListener,
                                     Math.toDegrees(orientation[0]), Math.toDegrees(orientation[1]), Math.toDegrees(orientation[2])))
                             .append("\n");
 
-                    // draw horizon line (a nice sanity check piece) and the target (if it's on the screen)
                     canvas.save();
 
                     // use roll for screen rotation
@@ -214,19 +212,14 @@ public class OverlayView extends View implements SensorEventListener,
                     // wait to translate the dx so the horizon doesn't get pushed off
                     canvas.translate(0.0f, 0.0f - dy);
 
-                // make our line big enough to draw regardless of rotation and translation
-                //canvas.drawLine(0f - canvas.getHeight(), canvas.getHeight()/2, canvas.getWidth()+canvas.getHeight(), canvas.getHeight()/2, targetPaint);
-
                     // now translate the dx
                     canvas.translate(0.0f - dx, 0.0f);
-                    // draw our point -- we've rotated and translated this to the right spot already
 
                     int boxMidX = canvas.getWidth() / 2 - 300;
                     int boxMidY = canvas.getHeight() / 2 - 150;
                     canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_message), boxMidX, boxMidY, null);
                     canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher3), boxMidX + 50, boxMidY + 50, null);
                     canvas.drawText(person.getName(), boxMidX + 170, boxMidY + 105, messagePaint);
-                    canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight() / 2, 8.0f, targetPaint);
                     canvas.restore();
 
 
