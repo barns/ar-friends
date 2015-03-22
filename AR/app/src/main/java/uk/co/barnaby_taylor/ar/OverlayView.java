@@ -25,6 +25,8 @@ import android.text.TextPaint;
 import android.util.Log;
 import android.view.View;
 
+import java.util.HashMap;
+
 public class OverlayView extends View implements SensorEventListener,
         LocationListener {
 
@@ -32,6 +34,7 @@ public class OverlayView extends View implements SensorEventListener,
 
     private final Context context;
     private Handler handler;
+    private Location lastLocation;
 
     private final static Location teamDesk = new Location("manual");
     static {
@@ -39,23 +42,21 @@ public class OverlayView extends View implements SensorEventListener,
         teamDesk.setLongitude(0.08219);
     }
 
-    String accelData = "Accelerometer Data";
-    String compassData = "Compass Data";
-    float[] accelArray;
-    float[] compassArray;
+    private final static Location somewhere = new Location("manual");
+    static {
+        teamDesk.setLatitude(51.31347);
+        teamDesk.setLongitude(0.08218);
+    }
 
-    Filter accelFilter = new Filter();
-    Filter compFilter = new Filter();
-
-    int smoothing = 100;
-    int gate = 20;
+    private final static Location somewhereElse = new Location("manual");
+    static {
+        teamDesk.setLatitude(51.31344);
+        teamDesk.setLongitude(0.08216);
+    }
 
     private SensorManager sensors = null;
 
     GPSTracker gps;
-    private Location lastLocation;
-    private float[] lastAccelerometer;
-    private float[] lastCompass;
 
     private float verticalFOV;
     private float horizontalFOV;
@@ -67,13 +68,29 @@ public class OverlayView extends View implements SensorEventListener,
 
     private TextPaint contentPaint;
     private TextPaint messagePaint;
+    private int numberOfPeople = 3;
 
     private Paint targetPaint;
+
+    //TODO create instance of person for each retrieved from server.
+
+    private Person[] persons = new Person[numberOfPeople];
 
     public OverlayView(Context context) {
         super(context);
         this.context = context;
         this.handler = new Handler();
+
+        persons[0] = new Person("Barnaby");
+        persons[0].setLocation(teamDesk);
+        persons[1] = new Person("Liam");
+        persons[1].setLocation(somewhere);
+        persons[2] = new Person("Daniel");
+        persons[2].setLocation(somewhereElse);
+
+        /*for (int i = 0; i < numberOfPeople; i++) {
+            persons[i] = new Person(personName);
+        }*/
 
         sensors = (SensorManager) context
                 .getSystemService(Context.SENSOR_SERVICE);
@@ -130,10 +147,8 @@ public class OverlayView extends View implements SensorEventListener,
         Resources res = getResources();
         // Draw something fixed (for now) over the camera view
 
-        float curBearingToMW = 0.0f;
-
-        StringBuilder text = new StringBuilder(accelData).append("\n");
-        text.append(compassData).append("\n");
+        StringBuilder text = new StringBuilder(persons[0].getAccelData()).append("\n");
+        text.append(persons[0].getCompassData()).append("\n");
 
         if (gps == null) {
             text.append(
@@ -146,68 +161,67 @@ public class OverlayView extends View implements SensorEventListener,
                     gps.getLatitude(),
                     gps.getLongitude());
 
-            //curBearingToMW = lastLocation.bearingTo(teamDesk);
-            curBearingToMW = gps.getLocation().bearingTo(teamDesk);
-
-            text.append(String.format("Bearing to MW: %.3f", curBearingToMW))
+            text.append(String.format("Bearing to MW: %.3f", persons[0].getBearingTo(gps)))
                     .append("\n");
         } else text.append(
                 String.format("NO GPS SIGNAL\n"));
 
 
-        // compute rotation matrix
-        float rotation[] = new float[9];
-        float identity[] = new float[9];
-        if (lastAccelerometer != null && lastCompass != null) {
-            boolean gotRotation = SensorManager.getRotationMatrix(rotation,
-                    identity, accelArray, compassArray);
-            if (gotRotation) {
-                float cameraRotation[] = new float[9];
-                // remap such that the camera is pointing straight down the Y
-                // axis
-                SensorManager.remapCoordinateSystem(rotation,
-                        SensorManager.AXIS_X, SensorManager.AXIS_Z,
-                        cameraRotation);
+        for (Person person : persons) {
+            // compute rotation matrix
+            float rotation[] = new float[9];
+            float identity[] = new float[9];
+            if (person.getLastAccelerometer() != null && person.getLastCompass() != null) {
+                boolean gotRotation = SensorManager.getRotationMatrix(rotation,
+                        identity, person.getAccelArray(), person.getCompassArray());
+                if (gotRotation) {
+                    float cameraRotation[] = new float[9];
+                    // remap such that the camera is pointing straight down the Y
+                    // axis
+                    SensorManager.remapCoordinateSystem(rotation,
+                            SensorManager.AXIS_X, SensorManager.AXIS_Z,
+                            cameraRotation);
 
-                // orientation vector
-                float orientation[] = new float[3];
-                SensorManager.getOrientation(cameraRotation, orientation);
+                    // orientation vector
+                    float orientation[] = new float[3];
+                    SensorManager.getOrientation(cameraRotation, orientation);
 
-                text.append(
-                        String.format("Orientation (%.3f, %.3f, %.3f)",
-                                Math.toDegrees(orientation[0]), Math.toDegrees(orientation[1]), Math.toDegrees(orientation[2])))
-                        .append("\n");
+                    text.append(
+                            String.format("Orientation (%.3f, %.3f, %.3f)",
+                                    Math.toDegrees(orientation[0]), Math.toDegrees(orientation[1]), Math.toDegrees(orientation[2])))
+                            .append("\n");
 
-                // draw horizon line (a nice sanity check piece) and the target (if it's on the screen)
-                canvas.save();
+                    // draw horizon line (a nice sanity check piece) and the target (if it's on the screen)
+                    canvas.save();
 
-                // use roll for screen rotation
-                canvas.rotate((float)(0.0f- Math.toDegrees(orientation[2])));
+                    // use roll for screen rotation
+                    canvas.rotate((float) (0.0f - Math.toDegrees(orientation[2])));
 
-                // Translate, but normalize for the FOV of the camera -- basically, pixels per degree, times degrees == pixels
-                float dx = (float) ( (canvas.getWidth()/ horizontalFOV) * (Math.toDegrees(orientation[0])-curBearingToMW));
-                float dy = (float) ( (canvas.getHeight()/ verticalFOV) * Math.toDegrees(orientation[1])) ;
+                    // Translate, but normalize for the FOV of the camera -- basically, pixels per degree, times degrees == pixels
+                    float dx = (float) ((canvas.getWidth() / horizontalFOV) * (Math.toDegrees(orientation[0]) - person.getBearingTo(gps)));
+                    float dy = (float) ((canvas.getHeight() / verticalFOV) * Math.toDegrees(orientation[1]));
 
-                // wait to translate the dx so the horizon doesn't get pushed off
-                canvas.translate(0.0f, 0.0f-dy);
-
-
-                // make our line big enough to draw regardless of rotation and translation
-                canvas.drawLine(0f - canvas.getHeight(), canvas.getHeight()/2, canvas.getWidth()+canvas.getHeight(), canvas.getHeight()/2, targetPaint);
-
-                // now translate the dx
-                canvas.translate(0.0f-dx, 0.0f);
-                // draw our point -- we've rotated and translated this to the right spot already
-
-                int boxMidX = canvas.getWidth()/2 - 300;
-                int boxMidY = canvas.getHeight()/2 - 300;
-                canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_message), boxMidX, boxMidY, null);
-                canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher3), boxMidX + 50, boxMidY + 50, null);
-                canvas.drawText("Liam Higgins", boxMidX + 170, boxMidY + 105, messagePaint);
-                canvas.drawCircle(canvas.getWidth()/2, canvas.getHeight()/2, 8.0f, targetPaint);
-                canvas.restore();
+                    // wait to translate the dx so the horizon doesn't get pushed off
+                    canvas.translate(0.0f, 0.0f - dy);
 
 
+                    // make our line big enough to draw regardless of rotation and translation
+                    canvas.drawLine(0f - canvas.getHeight(), canvas.getHeight() / 2, canvas.getWidth() + canvas.getHeight(), canvas.getHeight() / 2, targetPaint);
+
+                    // now translate the dx
+                    canvas.translate(0.0f - dx, 0.0f);
+                    // draw our point -- we've rotated and translated this to the right spot already
+
+                    int boxMidX = canvas.getWidth() / 2 - 300;
+                    int boxMidY = canvas.getHeight() / 2 - 300;
+                    canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_message), boxMidX, boxMidY, null);
+                    canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher3), boxMidX + 50, boxMidY + 50, null);
+                    canvas.drawText(person.getName(), boxMidX + 170, boxMidY + 105, messagePaint);
+                    canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight() / 2, 8.0f, targetPaint);
+                    canvas.restore();
+
+
+                }
             }
         }
 
@@ -233,27 +247,15 @@ public class OverlayView extends View implements SensorEventListener,
             msg.append("[").append(String.format("%.3f", value)).append("]");
         }
 
-        switch (event.sensor.getType()) {
-            case Sensor.TYPE_ACCELEROMETER:
-                lastAccelerometer = event.values.clone();
-                accelData = msg.toString();
-                if (accelArray != null) {
-                    accelArray = accelFilter.lowPassArray(accelArray, event.values, smoothing, gate,
-                            false);
-                } else {
-                    accelArray = event.values;
-                }
-                break;
-            case Sensor.TYPE_MAGNETIC_FIELD:
-                lastCompass = event.values.clone();
-                compassData = msg.toString();
-                if (compassArray != null) {
-                    compassArray = compFilter.lowPassArray(compassArray, event.values, smoothing,
-                            gate, true);
-                } else {
-                    compassArray = event.values;
-                }
-                break;
+        for (Person person : persons) {
+            switch (event.sensor.getType()) {
+                case Sensor.TYPE_ACCELEROMETER:
+                    person.filter("accelerometer", event, msg);
+                    break;
+                case Sensor.TYPE_MAGNETIC_FIELD:
+                    person.filter("compass", event, msg);
+                    break;
+            }
         }
 
         this.invalidate();
