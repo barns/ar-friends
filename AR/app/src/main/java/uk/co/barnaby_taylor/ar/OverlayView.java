@@ -39,6 +39,12 @@ public class OverlayView extends View implements SensorEventListener,
         teamDesk.setLongitude(0.08219);
     }
 
+    int updateCounter;
+    HTTPClientAR client;
+    String host;
+    String insertRequest;
+    BlockingQueue<> users;
+
     String accelData = "Accelerometer Data";
     String compassData = "Compass Data";
     float[] accelArray;
@@ -82,6 +88,12 @@ public class OverlayView extends View implements SensorEventListener,
 
         startSensors();
         startGPS();
+
+        updateCounter = 0;
+        client = new HTTPClientAR();
+        host = "http://test.findroomies.co.uk";
+        client.sendRequest(host+"/insert?fb_id=1236&fb_name=Awesome&lat=3&long=2&alt=0");
+        insertRequest = "/update?fb_id=1236&lat=3&long=2&alt=0";
 
         // get some camera parameters
         Camera camera = Camera.open();
@@ -129,6 +141,13 @@ public class OverlayView extends View implements SensorEventListener,
         super.onDraw(canvas);
         Resources res = getResources();
         // Draw something fixed (for now) over the camera view
+
+        if (updateCounter < 250) {
+            updateCounter++;
+        } else {
+            updateCounter = 0;
+            client.sendRequest(host+insertRequest);
+        }
 
         float curBearingToMW = 0.0f;
 
