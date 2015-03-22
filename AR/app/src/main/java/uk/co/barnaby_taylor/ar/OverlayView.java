@@ -208,14 +208,14 @@ public class OverlayView extends View implements SensorEventListener,
                     canvas.rotate((float) (0.0f - Math.toDegrees(orientation[2])));
 
                     // Translate, but normalize for the FOV of the camera -- basically, pixels per degree, times degrees == pixels
-                    float dx = (float) ((canvas.getWidth() / horizontalFOV) * (Math.toDegrees(orientation[0]) - person.getBearingTo(gps)));
-                    float dy = (float) ((canvas.getHeight() / verticalFOV) * Math.toDegrees(orientation[1]));
+                    person.setDx((float) ((canvas.getWidth() / horizontalFOV) * (Math.toDegrees(orientation[0]) - person.getBearingTo(gps))));
+                    person.setDy((float) ((canvas.getHeight() / verticalFOV) * Math.toDegrees(orientation[1])));
 
                     // wait to translate the dx so the horizon doesn't get pushed off
-                    canvas.translate(0.0f, 0.0f - dy);
+                    canvas.translate(0.0f, 0.0f - person.getDy());
 
                     // now translate the dx
-                    canvas.translate(0.0f - dx, 0.0f);
+                    canvas.translate(0.0f - person.getDx(), 0.0f);
 
                     int boxMidX = canvas.getWidth() / 2 - 300;
                     int boxMidY = canvas.getHeight() / 2 - 150;
@@ -223,8 +223,6 @@ public class OverlayView extends View implements SensorEventListener,
                     canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher3), boxMidX + 50, boxMidY + 50, null);
                     canvas.drawText(person.getName(), boxMidX + 170, boxMidY + 105, messagePaint);
                     canvas.restore();
-
-
                 }
             }
         }
@@ -270,11 +268,8 @@ public class OverlayView extends View implements SensorEventListener,
         float xCoord = event.getX();
         float yCoord = event.getY();
 
-        for (Person person : persons) {
-            /*if (hittest) {
-                Log.w(DEBUG_TAG, "Hit!");
-            }*/
-        }
+        //TODO make a friend
+
         return true;
     }
 

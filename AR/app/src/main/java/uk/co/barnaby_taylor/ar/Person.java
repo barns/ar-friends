@@ -22,6 +22,8 @@ public class Person
     private String name;
     private float bearingTo = 0.0f;
     private Location location;
+    private float dx;
+    private float dy;
 
     public Person(String name) {
         smoothing = 100;
@@ -93,5 +95,25 @@ public class Person
 
     public float getBearingTo(GPSTracker gps) {
         return gps.getLocation().bearingTo(this.location);
+    }
+
+    public void setDx(float dx) {
+        this.dx = dx;
+    }
+
+    public void setDy(float dy) {
+        this.dy = dy;
+    }
+
+    public float getDx() {
+        return dx;
+    }
+
+    public float getDy() {
+        return dy;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
