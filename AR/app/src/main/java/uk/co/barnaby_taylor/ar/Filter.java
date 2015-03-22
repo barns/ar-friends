@@ -28,12 +28,15 @@ public class Filter {
         return currentValue;
     }
 
-    public float[] lowPassArray(float[] currentValues, float[] newValues, int smoothing, int gate) {
+    public float[] lowPassArray(float[] currentValues, float[] newValues, int smoothing, int gate, boolean compass) {
         float[] output = new float[newValues.length];
 
         for (int i = 0; i < currentValues.length; i++) {
-
+            if (compass) {
                 output[i] = (filter(newValues[i], values.get(i), smoothing, gate));
+            } else {
+                output[i] = (filterMean(newValues[i], values.get(i)));
+            }
         }
 
         return output;
