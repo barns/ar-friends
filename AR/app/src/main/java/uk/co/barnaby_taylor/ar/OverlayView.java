@@ -27,6 +27,10 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.HashMap;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 public class OverlayView extends View implements SensorEventListener,
         LocationListener {
 
@@ -41,6 +45,17 @@ public class OverlayView extends View implements SensorEventListener,
         russia.setLatitude(69.522991);
         russia.setLongitude(94.152833);
     }
+
+    int updateCounter;
+    HTTPClientAR client;
+    String host;
+    String insertRequest;
+    static BlockingQueue<Person> users = new LinkedBlockingQueue<>();
+
+    String accelData = "Accelerometer Data";
+    String compassData = "Compass Data";
+    float[] accelArray;
+    float[] compassArray;
 
     private final static Location canada = new Location("manual");
     static {
@@ -105,6 +120,12 @@ public class OverlayView extends View implements SensorEventListener,
         startSensors();
         startGPS();
 
+        updateCounter = 0;
+        client = new HTTPClientAR();
+        host = "http://test.findroomies.co.uk";
+        client.sendRequest(host+"/insert?fb_id=1236&fb_name=Awesome&lat=3&long=2&alt=0");
+        insertRequest = "/update?fb_id=1236&lat=3&long=2&alt=0";
+
         // get some camera parameters
         Camera camera = Camera.open();
         Camera.Parameters params = camera.getParameters();
@@ -151,6 +172,16 @@ public class OverlayView extends View implements SensorEventListener,
         super.onDraw(canvas);
         Resources res = getResources();
         // Draw something fixed (for now) over the camera view
+
+
+        if (updateCounter < 250) {
+            updateCounter++;
+        } else {
+            updateCounter = 0;
+            client.sendRequest(host+insertRequest);
+        }
+
+        float curBearingToMW = 0.0f;
 
         this.canvas = canvas;
 
