@@ -39,8 +39,6 @@ function error($status = 500, $message = false, $details = '') {
         }
     }
 
-    header($message, true, $status);
-
     output(array(
         'error' => array(
             'message' => $message,
@@ -62,6 +60,12 @@ function execute(&$connection, $query) {
     if (!$statement->execute()) {
         error(500, false, $statement->errorInfo()[2]);
     }
+}
+
+$requestedPage = preg_replace('/^\/([^\/\?]*)((\/|\?).*)?$/', '$1', $_SERVER['REQUEST_URI']);
+
+if (!in_array($requestedPage, array('insert','update','delete','select'))) {
+    error(404);
 }
 
 // Ensure that the values provided are valid and contain the $_GET array
@@ -125,7 +129,7 @@ $response = array(
     'content' => array()
 );
 
-switch (preg_replace('/^\/([^\/\?]*)((\/|\?).*)?$/', '$1', $_SERVER['REQUEST_URI'])) {
+switch ($requestedPage) {
     case 'insert':
         validate($get, array('fb_name','long','lat','alt'));
         execute($connection, "INSERT INTO ARFriends (fb_id, fb_name, longitude, latitude, altitude)
@@ -156,8 +160,6 @@ switch (preg_replace('/^\/([^\/\?]*)((\/|\?).*)?$/', '$1', $_SERVER['REQUEST_URI
     case 'select':
         validate($get, array('long','lat'));
         break;
-    default:
-        error(404);
 }
 
 // Select nearby people
