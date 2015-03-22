@@ -267,7 +267,6 @@ public class OverlayView extends View implements SensorEventListener,
     public boolean onTouchEvent(MotionEvent event) {
         float xCoord = event.getX();
         float yCoord = event.getY();
-
         //TODO make a friend
 
         return true;

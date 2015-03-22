@@ -4,12 +4,15 @@ import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.widget.LoginButton;
 
+import android.app.FragmentTransaction;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -28,18 +31,20 @@ public class MainActivity extends FragmentActivity {
                     .beginTransaction()
                     .add(android.R.id.content, mainFragment)
                     .commit();
+
         } else {
             // Or set the fragment from restored state info
             mainFragment = (MainFragment) getSupportFragmentManager()
                     .findFragmentById(android.R.id.content);
         }
-//        mainFragment.onDestroy();
-        getSupportFragmentManager().beginTransaction().remove(mainFragment);
+//        getSupportFragmentManager().beginTransaction().hide(mainFragment).commit();
+//        getSupportFragmentManager().beginTransaction().remove(mainFragment);
         setContentView(R.layout.activity_main);
 
         FrameLayout arViewPane = (FrameLayout) findViewById(R.id.ar_view_pane);
 
         ArDisplayView arDisplay = new ArDisplayView(this, this);
+
 
 //        arViewPane.addView(connect);
         arViewPane.addView(arDisplay);
@@ -71,7 +76,9 @@ public class MainActivity extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void onDestroy() {
-        super.onDestroy();
+    @Override
+    public void onUserInteraction() {
+        super.onUserInteraction();
+        getSupportFragmentManager().beginTransaction().hide(mainFragment).commit();
     }
 }

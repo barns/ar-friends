@@ -19,4 +19,8 @@ public class MainFragment extends Fragment {
         return view;
     }
 
+    public void onDestroy() {
+        this.setUserVisibleHint(false);
+    }
+
 }
