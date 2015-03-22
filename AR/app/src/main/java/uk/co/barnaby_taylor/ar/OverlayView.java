@@ -48,6 +48,7 @@ public class OverlayView extends View implements SensorEventListener,
     Filter compFilter = new Filter();
 
     int smoothing = 100;
+    int gate = 20;
 
     private SensorManager sensors = null;
 
@@ -237,7 +238,8 @@ public class OverlayView extends View implements SensorEventListener,
                 lastAccelerometer = event.values.clone();
                 accelData = msg.toString();
                 if (accelArray != null) {
-                    accelArray = accelFilter.lowPassArray(accelArray, event.values, smoothing, 10);
+                    accelArray = accelFilter.lowPassArray(accelArray, event.values, smoothing, gate,
+                            false);
                 } else {
                     accelArray = event.values;
                 }
@@ -246,7 +248,8 @@ public class OverlayView extends View implements SensorEventListener,
                 lastCompass = event.values.clone();
                 compassData = msg.toString();
                 if (compassArray != null) {
-                    compassArray = compFilter.lowPassArray(compassArray, event.values, smoothing, 10);
+                    compassArray = compFilter.lowPassArray(compassArray, event.values, smoothing,
+                            gate, true);
                 } else {
                     compassArray = event.values;
                 }

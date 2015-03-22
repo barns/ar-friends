@@ -5,8 +5,7 @@ import java.util.ArrayList;
 /**
  * Created by barnabytaylor on 21/03/15.
  */
-public class Filter
-{
+public class Filter {
     ArrayList<ArrayList<Float>> values;
     int size;
 
@@ -18,8 +17,7 @@ public class Filter
         }
     }
 
-    public double lowPass(double currentValue, double newValue, int smoothing, int gate)
-    {
+    public double lowPass(double currentValue, double newValue, int smoothing, int gate) {
         double candidate = (currentValue - newValue) / smoothing;
         if (Math.abs(candidate - newValue) > newValue / gate) {
             newValue += (currentValue - newValue) / smoothing;
@@ -29,18 +27,21 @@ public class Filter
         return currentValue;
     }
 
-    public float[] lowPassArray(float[] currentValues, float[] newValues, int smoothing, int gate)
-    {
+    public float[] lowPassArray(float[] currentValues, float[] newValues, int smoothing, int gate,
+            boolean compass) {
         float[] output = new float[newValues.length];
-        for (int i = 0; i < currentValues.length; i++)
-        {
-            output[i] = filter(newValues[i],values.get(i),smoothing);
+        for (int i = 0; i < currentValues.length; i++) {
+            if (compass) {
+                output[i] = filter(newValues[i], values.get(i), smoothing, gate);
+            } else {
+                output[i] = filterMean(newValues[i], values.get(i));
+            }
         }
 
         return output;
     }
 
-    private float filter(float f, ArrayList<Float> values,int smoothing) {
+    private float filterMean(float f, ArrayList<Float> values) {
         if (values.size() >= size) {
             values.remove(0);
         }
@@ -52,5 +53,22 @@ public class Filter
         }
 
         return sum/values.size();
+    }
+
+    private float filter(float f, ArrayList<Float> values, int smoothing, int gate) {
+        if (values.size() >= size) {
+            values.remove(0);
+        }
+        values.add(f);
+
+        float value;
+        if (Math.abs(values.get(values.size() - 1) - values.get(0)) > gate) {
+            value = values.get(values.size() - 1) + (values.get(0) -
+                    values.get(values.size() - 1) / smoothing);
+        } else {
+            value = values.get(0);
+        }
+
+        return value;
     }
 }
