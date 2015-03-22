@@ -214,8 +214,8 @@ public class OverlayView extends View implements SensorEventListener,
                     // wait to translate the dx so the horizon doesn't get pushed off
                     canvas.translate(0.0f, 0.0f - dy);
 
-                    // make our line big enough to draw regardless of rotation and translation
-                    canvas.drawLine(0f - canvas.getHeight(), canvas.getHeight() / 2, canvas.getWidth() + canvas.getHeight(), canvas.getHeight() / 2, targetPaint);
+                // make our line big enough to draw regardless of rotation and translation
+                //canvas.drawLine(0f - canvas.getHeight(), canvas.getHeight()/2, canvas.getWidth()+canvas.getHeight(), canvas.getHeight()/2, targetPaint);
 
                     // now translate the dx
                     canvas.translate(0.0f - dx, 0.0f);

@@ -10,8 +10,9 @@ public class Filter {
     int size;
 
     public Filter() {
-        size = 8;
+        size = 6;
         values = new ArrayList<>();
+
         for (int i=0; i<3; i++) {
             values.add(new ArrayList<Float>());
         }
@@ -27,21 +28,19 @@ public class Filter {
         return currentValue;
     }
 
-    public float[] lowPassArray(float[] currentValues, float[] newValues, int smoothing, int gate,
-            boolean compass) {
+    public float[] lowPassArray(float[] currentValues, float[] newValues, int smoothing, int gate) {
         float[] output = new float[newValues.length];
+
         for (int i = 0; i < currentValues.length; i++) {
-            if (compass) {
-                output[i] = filter(newValues[i], values.get(i), smoothing, gate);
-            } else {
-                output[i] = filterMean(newValues[i], values.get(i));
-            }
+
+                output[i] = (filter(newValues[i], values.get(i), smoothing, gate));
         }
 
         return output;
     }
 
     private float filterMean(float f, ArrayList<Float> values) {
+
         if (values.size() >= size) {
             values.remove(0);
         }
@@ -49,10 +48,10 @@ public class Filter {
 
         float sum = 0;
         for (float number : values) {
-            sum += number;
+            sum += 1/number;
         }
 
-        return sum/values.size();
+        return values.size()/sum;
     }
 
     private float filter(float f, ArrayList<Float> values, int smoothing, int gate) {
