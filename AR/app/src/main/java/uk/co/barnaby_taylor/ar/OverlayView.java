@@ -27,6 +27,8 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.HashMap;
+
 public class OverlayView extends View implements SensorEventListener,
         LocationListener {
 
