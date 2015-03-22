@@ -204,7 +204,7 @@ public class OverlayView extends View implements SensorEventListener,
                 canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_message), boxMidX, boxMidY, null);
                 canvas.drawBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher3), boxMidX + 50, boxMidY + 50, null);
                 canvas.drawText("Liam Higgins", boxMidX + 170, boxMidY + 105, messagePaint);
-                canvas.drawCircle(canvas.getWidth()/2, canvas.getHeight()/2, 8.0f, targetPaint);
+                //canvas.drawCircle(canvas.getWidth()/2, canvas.getHeight()/2, 8.0f, targetPaint);
                 canvas.restore();
 
 
@@ -213,9 +213,9 @@ public class OverlayView extends View implements SensorEventListener,
 
         canvas.save();
         canvas.translate(15.0f, 15.0f);
-        StaticLayout textBox = new StaticLayout(text.toString(), contentPaint,
+        /*StaticLayout textBox = new StaticLayout(text.toString(), contentPaint,
                 480, Alignment.ALIGN_NORMAL, 1.0f, 0.0f, true);
-        textBox.draw(canvas);
+        textBox.draw(canvas);*/
         canvas.restore();
     }
 
