@@ -156,7 +156,8 @@ public class OverlayView extends View implements SensorEventListener,
 
         this.canvas = canvas;
 
-        StringBuilder text = new StringBuilder(persons[0].getAccelData()).append("\n");
+        //Uncomment below for debug text
+        /*StringBuilder text = new StringBuilder(persons[0].getAccelData()).append("\n");
         text.append(persons[0].getCompassData()).append("\n");
 
         if (gps == null) {
@@ -173,7 +174,7 @@ public class OverlayView extends View implements SensorEventListener,
             text.append(String.format("Bearing to MW: %.3f", persons[0].getBearingTo(gps)))
                     .append("\n");
         } else text.append(
-                String.format("NO GPS SIGNAL\n"));
+                String.format("NO GPS SIGNAL\n"));*/
 
 
         for (Person person : persons) {
@@ -195,10 +196,11 @@ public class OverlayView extends View implements SensorEventListener,
                     float orientation[] = new float[3];
                     SensorManager.getOrientation(cameraRotation, orientation);
 
-                    text.append(
+                    //Uncomment below for debug text
+                    /*text.append(
                             String.format("Orientation (%.3f, %.3f, %.3f)",
                                     Math.toDegrees(orientation[0]), Math.toDegrees(orientation[1]), Math.toDegrees(orientation[2])))
-                            .append("\n");
+                            .append("\n");*/
 
                     canvas.save();
 
@@ -229,9 +231,10 @@ public class OverlayView extends View implements SensorEventListener,
 
         canvas.save();
         canvas.translate(15.0f, 15.0f);
-        StaticLayout textBox = new StaticLayout(text.toString(), contentPaint,
+        //Uncomment below for debug text
+        /*StaticLayout textBox = new StaticLayout(text.toString(), contentPaint,
                 480, Alignment.ALIGN_NORMAL, 1.0f, 0.0f, true);
-        textBox.draw(canvas);
+        textBox.draw(canvas);*/
         canvas.restore();
     }
 
