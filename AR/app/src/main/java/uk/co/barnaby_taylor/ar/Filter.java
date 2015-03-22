@@ -9,7 +9,7 @@ public class Filter
     {
         double candidate = (currentValue - newValue) / smoothing;
         if (Math.abs(candidate - newValue) > newValue / gate) {
-            newValue = currentValue + (currentValue - newValue) / smoothing;
+            newValue += (currentValue - newValue) / smoothing;
             return newValue;
         }
 
@@ -22,7 +22,7 @@ public class Filter
         {
             double candidate = (currentValues[i] - newValues[i]) / smoothing;
             if (Math.abs(candidate - newValues[i]) > newValues[i] / gate) {
-                newValues[i] = currentValues[i] + (currentValues[i] - newValues[i]) / smoothing;
+                newValues[i] += (currentValues[i] - newValues[i]) / smoothing;
             } else {
                 newValues[i] = currentValues[i];
             }
